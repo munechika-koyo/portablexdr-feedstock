@@ -11,40 +11,33 @@ source:
   sha256: 5cf4bdd153cf4d44eaf10b725f451d0cfadc070b4b9a9ccfb64094b8f78de72c
   patches:
     # Apply patches below which were originally from UDA repository
-    # to fix build issues on Windows and CMake support.
+    # to fix build issues on Windows and Meson support.
     # See https://github.com/ukaea/UDA/tree/main/extlib/portablexdr-4.9.1
-    - add-cmake-support.patch
+    - add-meson-support.patch
     - port-from-uda.patch
+    - add-def-module.patch
 
 build:
-  number: 0
+  number: 1
   skip:
     - unix
   script:
     - if: win
       then: |
-        cmake %CMAKE_ARGS% ^
-          -G Ninja ^
-          -D BUILD_SHARED_LIBS=ON ^
-          -D CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ^
-          -B build -S . || exit /b 1
-
-        cmake --build build --target install || exit /b 1
+        meson setup build --prefix %LIBRARY_PREFIX% -Dbuildtype=release || exit /b 1
+        meson install -C build || exit /b 1
       else: |
-        cmake ${CMAKE_ARGS} \
-          -D BUILD_SHARED_LIBS=ON \
-          -B build -S .
-
-        cmake --build build --target install
+        meson setup build ${MESON_ARGS}
+        meson install -C build
 requirements:
   build:
     - ${{ compiler('c') }}
-    - ${{ compiler('cxx') }}
     - ${{ stdlib('c') }}
-    - cmake
+    - meson
     - ninja
+    - pkg-config
   run_exports:
-    - ${{ pin_subpackage('portablexdr', exact=True) }}
+    - ${{ pin_subpackage('portablexdr', upper_bound="x.x.x") }}
 
 tests:
   - package_contents:
@@ -55,6 +48,8 @@ tests:
         - rpc/rpc.h
         - rpc/types.h
         - rpc/xdr.h
+      files:
+        - ${{ "Library/" if win }}lib/pkgconfig/portablexdr.pc
 
 about:
   homepage: https://people.redhat.com/~rjones/portablexdr/
