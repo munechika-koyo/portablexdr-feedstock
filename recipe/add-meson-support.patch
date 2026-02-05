@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/meson.build
-@@ -0,0 +1,94 @@
+@@ -0,0 +1,95 @@
 +project(
 +  'portablexdr',
 +  'c',
@@ -83,6 +83,7 @@
 +  sources,
 +  include_directories: [private_inc, public_inc],
 +  install: true,
++  vs_module_defs: 'xdr.def',
 +)
 +
 +# =============================================================================

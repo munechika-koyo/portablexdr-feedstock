@@ -15,6 +15,7 @@ source:
     # See https://github.com/ukaea/UDA/tree/main/extlib/portablexdr-4.9.1
     - add-meson-support.patch
     - port-from-uda.patch
+    - add-def-module.patch
 
 build:
   number: 1
